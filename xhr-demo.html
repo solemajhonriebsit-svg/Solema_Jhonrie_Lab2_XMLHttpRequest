@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XMLHttpRequest Lab</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #222;
+        }
+        button {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        #output {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            min-height: 50px;
+            line-height: 1.5;
+        }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h2>Exploring XMLHttpRequest</h2>
+    <button id="loadData">Load Post Data</button>
+    <div id="output" aria-live="polite">Click the button to load post data.</div>
+
+    <script>
+        document.getElementById("loadData").addEventListener("click", function () {
+            const output = document.getElementById("output");
+            const xhr = new XMLHttpRequest();
+
+            output.textContent = "Loading post data...";
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        try {
+                            const data = JSON.parse(xhr.responseText);
+                            output.innerHTML = "";
+
+                            const title = document.createElement("strong");
+                            title.textContent = "Post Title: ";
+                            output.appendChild(title);
+                            output.appendChild(document.createTextNode(data.title));
+
+                            output.appendChild(document.createElement("br"));
+                            output.appendChild(document.createElement("br"));
+
+                            const content = document.createElement("strong");
+                            content.textContent = "Content: ";
+                            output.appendChild(content);
+                            output.appendChild(document.createTextNode(data.body));
+                        } catch (error) {
+                            output.innerHTML = '<span class="error">Error: Unable to read the server response.</span>';
+                        }
+                    } else {
+                        output.innerHTML = '<span class="error">Error: ' +
+                            xhr.status + ' - ' + (xhr.statusText || "Request failed") + '</span>';
+                    }
+                }
+            };
+
+            xhr.onerror = function () {
+                output.innerHTML = '<span class="error">Error: A network error occurred. Please try again.</span>';
+            };
+
+            // The third argument, true, makes this request asynchronous.
+            xhr.open("GET", "https://jsonplaceholder.typicode.com/posts/1", true);
+            xhr.send();
+        });
+    </script>
+</body>
+</html>
